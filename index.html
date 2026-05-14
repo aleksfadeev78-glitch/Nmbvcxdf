@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>конвертер DXF онлайн бесплатный</title>
+    <meta name="description" content="Бесплатный онлайн конвертер в DXF с живым предпросмотром результата. Быстрая векторизация JPG, PDF, SVG, PNG. Сохранение реального масштаба для ЧПУ. Без регистрации.">
+    
+    <meta property="og:title" content="Бесплатный DXF-конвертер онлайн — живой предпросмотр">
+    <meta property="og:description" content="«Бесплатный DXF-конвертер онлайн с живым предпросмотром. Векторизация в реальном масштаме (мм), детекция дуг и фильтр шума. Идеально для ЧПУ станков: лазерной и плазменной резки — без регистрации.»">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://masterstan.ru/">
+    
+    <link rel="icon" href="https://masterstan.ru/favicon.ico" type="image/x-icon">
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Какие форматы файлов поддерживает конвертер?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Наш сервис поддерживает PDF, SVG, JPG, JPEG, PNG и BMP. Вы можете загрузить файл или сделать снимок камерой."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Будет ли масштаб в DXF соответствовать реальному размеру?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, вы можете задать реальную ширину детали в миллиметрах перед экспортом для получения масштаба 1:1."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Безопасно ли загружать чертежи?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Абсолютно. Вся обработка происходит локально в вашем браузере, файлы не передаются на сервер."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Как подготовить фото для лучшей векторизации?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Используйте контрастный фон (например, белый лист бумаги), избегайте теней и бликов."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Нужно ли устанавливать дополнительные программы?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Нет, наш конвертер работает полностью онлайн во всех современных браузерах (Chrome, Safari, Яндекс.Браузер) как на компьютерах, так и на смартфонах."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Можно ли открыть полученный файл в AutoCAD или КОМПАС?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, файл сохраняется в стандартном формате DXF (LWPOLYLINE), который поддерживается всеми популярными CAD-системами, включая AutoCAD, SolidWorks, КОМПАС-3D и Fusion 360."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Подходит ли файл для лазерной или плазменной резки?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Да, алгоритм сшивки контуров и заполнения разрывов и фильтрации шумов создает чистые замкнутые контуры, что идеально подходит для создания управляющих программ (УП) для станков с ЧПУ."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <style>
+        :root { --primary: #1e6f5c; --bg: #f1f5f9; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); font-family: system-ui, -apple-system, sans-serif; color: #1e293b; padding: 0; }
+        .container { max-width: 850px; margin: 0 auto; padding: 10px; }
+        .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .card-title { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 12px; border-bottom: 1px solid #f1f5f9; padding-bottom: 5px; }
+        .controls { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .control-group { background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        label { font-size: 0.7rem; font-weight: 600; display: block; margin-bottom: 4px; color: #475569; }
+        input[type="range"], input[type="number"] { width: 100%; cursor: pointer; }
+        .preview-box { background: #000; border-radius: 12px; min-height: 300px; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; border: 2px solid #e2e8f0; }
+        canvas { max-width: 100%; max-height: 75vh; image-rendering: pixelated; cursor: grab; }
+        canvas:active { cursor: grabbing; }
+        .btn-row { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 10px; }
+        .btn { border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; text-align: center; font-size: 0.9rem; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 0 #145244; }
+        .btn-primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #145244; }
+        .btn-secondary { background: #cbd5e1; color: #1e293b; }
+        .btn:disabled { opacity: 0.3; pointer-events: none; }
+        #log { font-family: 'Courier New', monospace; font-size: 11px; background: #111; color: #4ade80; padding: 12px; border-radius: 8px; margin-top: 10px; max-height: 100px; overflow-y: auto; border: 1px solid #333; }
+        .status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; background: #e2e8f0; margin-left: 10px; vertical-align: middle; }
+        
+        .help-box { display: none; background: #fffbeb; border: 1px dashed #f59e0b; padding: 12px; border-radius: 8px; margin-top: 10px; font-size: 0.8rem; color: #92400e; }
+        .help-box b { color: #b45309; }
+        .help-box ul { margin-left: 18px; margin-top: 5px; }
+
+        .top-brand-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 45px;
+            background: #ffffff;
+            padding: 0 15px;
+            border-bottom: 1px solid #e2e8f0;
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .top-brand-bar:hover { background: #f8fafc; }
+        .brand-left { display: flex; align-items: center; gap: 8px; }
+        .brand-logo { width: 24px; height: 24px; }
+        .brand-name { font-size: 13px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px; text-transform: uppercase; }
+        .brand-right { font-size: 12px; font-weight: 600; color: #475569; }
+
+        .btn-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            line-height: 1.2;
+            height: 100%;
+        }
+        .btn-main-text {
+            font-size: 1rem;
+            font-weight: 800;
+        }
+        .btn-sub-text {
+            font-size: 0.65rem;
+            font-weight: 400;
+            opacity: 0.9;
+        }
+        /* Кнопка сброса зума */
+        .zoom-reset {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(255,255,255,0.8);
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<a href="https://masterstan.ru" class="top-brand-bar">
+    <div class="brand-left">
+        <svg class="brand-logo" viewBox="0 0 553 627" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <title>Логотип Завод Станкопром — промышленное оборудование ЧПУ</title>
+            <path d="M532.784 466.868L296.671 603.197C284.186 610.403 268.814 610.403 256.329 603.197L20.216 466.868C7.72517 459.66 0 446.273 0 431.85V159.15C0 144.727 7.72517 131.34 20.216 124.132L256.329 7.80287C268.814 0.596667 284.186 0.596667 296.671 7.80287L532.784 144.132C545.275 151.34 553 164.727 553 179.15V451.85C553 466.273 545.275 479.66 553 486.868V466.868Z" fill="#71C5D3"/>
+            <path d="M510.601 454.062L290.729 581.002C281.812 586.151 271.188 586.151 262.271 581.002L42.3986 454.062C33.4807 448.911 28 439.351 28 429.052V175.148C28 164.849 33.4807 155.289 42.3986 150.138L262.271 23.1982C271.188 18.0494 281.812 18.0494 290.729 23.1982L510.601 150.138C519.519 155.289 525 164.849 525 175.148V429.052C525 439.351 519.519 448.911 510.601 454.062Z" fill="white"/>
+            <path d="M488.419 441.256L284.787 558.807C279.437 561.899 273.563 561.899 268.213 558.807L64.5813 441.256C59.2363 438.161 56 432.428 56 426.254V191.146C56 184.972 59.2363 179.239 64.5813 176.144L268.213 58.5932C273.563 55.5006 279.437 55.5006 284.787 58.5932L488.419 176.144C493.764 179.239 497 184.972 497 191.146V426.254C497 432.428 493.764 438.161 488.419 441.256Z" fill="#B7E1E8"/>
+            <path d="M466.236 428.45L278.845 536.612C277.062 537.642 275.938 537.642 274.155 536.612L86.7639 428.45C84.992 427.412 84 425.506 84 423.456V207.144C84 205.094 84.992 203.188 86.7639 202.15L274.155 93.9878C275.938 92.9578 277.062 92.9578 278.845 93.9878L466.236 202.15C468.008 203.188 469 205.094 469 207.144V423.456C469 425.506 468.008 427.412 466.236 428.45Z" fill="white"/>
+            <path d="M136.216 280.93V435.539L231.025 490.281V462.839L164.28 424.316V333.155L248.835 381.986V354.544L136.216 289.479V280.93ZM262.195 304.835V509.317H289.805V304.835H262.195ZM262.195 244.68V272.122H289.805V244.68H262.195ZM307.615 354.544V381.986L392.165 333.155V424.316L325.42 462.839V490.281L420.229 435.539V280.93L307.615 345.995V354.544Z" fill="#007297"/>
+            <path d="M414.73 219.049L278.368 140.312C277.129 139.596 275.371 139.596 274.132 140.312L137.77 219.049C136.537 219.761 136 220.89 136 222.106V255.452C136 256.669 136.537 257.797 137.77 258.509L274.132 337.246C275.371 337.962 277.129 337.962 274.132 337.246L414.73 258.509C415.963 257.797 416.5 256.669 416.5 255.452V222.106C416.5 220.89 415.963 219.761 414.73 219.049Z" fill="white"/>
+            <path d="M262.195 197.805V382.439H289.805V197.805H262.195Z" fill="#007297"/>
+            <path d="M276 156L214.512 191.5H337.488L276 156Z" fill="#007297"/>
+        </svg>
+        <span class="brand-name">ЗАВОД СТАНКОПРОМ</span>
+    </div>
+    <div class="brand-right">
+        +7 351 729 80 19 <span style="margin-left: 10px; color: #94a3b8;">г.Челябинск</span>
+    </div>
+</a>
+
+<div class="container">
+    <h1 style="font-size: 18px; font-weight: 800; color: #0f172a; text-align: center; margin-bottom: 20px; margin-top: 20px; line-height: 1.2;">
+        Конвертер в DXF (из файлов PDF, JPG, JPEG, SVG, PNG, BMP) с предварительным просмотром результата
+    </h1>
+
+    <div class="card">
+        <div class="card-title">1. Импорт чертежа <span class="status-tag">Все форматы</span></div>
+        <div class="btn-row">
+            <button id="mainOpenFileBtn" class="btn btn-secondary" onclick="$('fileIn').click()" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <span>📄</span>
+                <div class="btn-content">
+                    <span class="btn-main-text">Открыть файл</span>
+                </div>
+            </button>
+        </div>
+        <input type="file" id="fileIn" hidden accept=".pdf,.svg,.jpg,.jpeg,.png,.bmp,application/pdf,image/svg+xml,image/*" inputmode="file">
+    </div>
+
+    <div class="card">
+        <div class="card-title">2. Настройка контура</div>
+        <div class="controls">
+            <div class="control-group">
+                <label>Порог (Threshold): <span id="vTh">128</span></label>
+                <input type="range" id="threshold" min="0" max="255" value="128">
+                <label style="margin-top:10px">Заполнение разрывов: <span id="vDilation">0</span></label>
+                <input type="range" id="dilation" min="0" max="3" value="0">
+                <label style="margin-top:10px; cursor:pointer;"><input type="checkbox" id="invert"> Инвертировать цвета</label>
+            </div>
+            <div class="control-group">
+                <label>Реальная ширина (мм):</label>
+                <input type="number" id="realWidth" value="100" step="1">
+                <label style="margin-top:10px">Фильтр шума (RDP): <span id="vNoise">5</span></label>
+                <input type="range" id="noise" min="0" max="40" value="5">
+                <label style="margin-top:10px">Сшивка контуров (px): <span id="vJoin">4</span></label>
+                <input type="range" id="joinTolerance" min="0" max="20" value="4">
+            </div>
+        </div>
+        <div style="margin-top:10px; padding: 0 10px;">
+             <label style="cursor:pointer; color: #1e6f5c; display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="showOnlyVector"> <b>Только DXF (без фото)</b></label>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">3. Анализ геометрии</div>
+        <div class="preview-box">
+            <button class="zoom-reset" onclick="resetZoom()" title="Сбросить масштаб">⟲</button>
+            <canvas id="mainCanvas"></canvas>
+        </div>
+        <div id="log">Ожидание файла... (Поддерживаются векторные и растровые форматы)</div>
+    </div>
+
+    <div class="btn-row">
+        <button id="processBtn" class="btn btn-primary" disabled>🔍 Найти штрихи</button>
+        <button id="saveBtn" class="btn btn-primary" style="background:#0f172a; box-shadow: 0 4px 0 #000;" disabled>💾 Сохранить DXF</button>
+    </div>
+
+    <article style="font-family: 'Inter', -apple-system, system-ui, sans-serif; line-height: 1.7; color: #1e293b; margin-top: 40px; padding: 25px; background: #fff; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: left;">
+        <header>
+            <h2 style="color: #1e40af; font-size: clamp(20px, 5vw, 24px); font-weight: 700; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                Конвертер в DXF с предварительным просмотром результата
+            </h2>
+        </header>
+
+        <section>
+            <p style="font-size: clamp(16px, 4vw, 18px); font-weight: 500; color: #475569;">Профессиональное решение для лазерной, плазменной и фрезерной резки прямо в вашем браузере.</p>
+            <p>Ваш чертеж или рисунок — готовая программа для станка за 5 минут! Наш сервис превращает любой ваш эскиз, фотографию или рисунок в готовый DXF-файл, который можно открывать и редактировать в AutoCAD, SolidWorks, КОМПАС и других CAD-системах. Конвертер позволяет предварительно просмотреть результат векторизации в реальном времени, что дает пользователю возможность мгновенно оценить качество будущего чертежа, вовремя скорректировать настройки и избежать ошибок при производстве деталей.</p>
+        </section>
+
+        <section>
+            <h2 style="color: #1e40af; font-size: 20px; margin-top: 30px;">Почему наш конвертер DXF лучше для ЧПУ?</h2>
+            <p>В отличие от обычных сервисов, которые выдают разрозненные отрезки, наш алгоритм формирует чистые, непрерывные контуры (LWPOLYLINE) с интеллектуальной поддержкой дуг. Это обеспечивает плавное движение головки станка, экономит материалы и время.</p>
+            
+            <h3 style="font-size: 18px; margin-top: 25px; color: #334155;">Ключевые преимущества новой версии:</h3>
+            <ul style="list-style: none; padding-left: 0;">
+                <li style="margin-bottom: 12px; padding-left: 30px; position: relative;"><span style="position: absolute; left: 0; color: #2563eb; font-weight: bold;">✓</span> <strong>Живой предпросмотр результата:</strong> Позволяет видеть итоговый контур еще до сохранения файла. Это необходимо для точной настройки порога чувствительности и фильтрации шумов, гарантируя высокое качество выходного DXF.</li>
+                <li style="margin-bottom: 12px; padding-left: 30px; position: relative;"><span style="position: absolute; left: 0; color: #2563eb; font-weight: bold;">✓</span> <strong>Поддержка PDF и SVG:</strong> Оцифровка инженерных документов и профессиональной векторной графики.</li>
+                <li style="margin-bottom: 12px; padding-left: 30px; position: relative;"><span style="position: absolute; left: 0; color: #2563eb; font-weight: bold;">✓</span> <strong>Сшивка контуров и заполнение разрывов:</strong> Интеллектуальное объединение разрозненных отрезков в единую замкнутую линию для корректной работы CAM-программ.</li>
+                <li style="margin-bottom: 12px; padding-left: 30px; position: relative;"><span style="position: absolute; left: 0; color: #2563eb; font-weight: bold;">✓</span> <strong>Реальный масштаб в мм:</strong> Сохранение геометрии и пропорций исходного изображения для работы 1:1.</li>
+                <li style="margin-bottom: 12px; padding-left: 30px; position: relative;"><span style="position: absolute; left: 0; color: #2563eb; font-weight: bold;">✓</span> <strong>Интеллектуальный фильтр шума:</strong> Удаление лишних точек и «мусора» без потери формы.</li>
+                <li style="margin-bottom: 12px; padding-left: 30px; position: relative;"><span style="position: absolute; left: 0; color: #2563eb; font-weight: bold;">✓</span> <strong>Полная приватность:</strong> Все данные обрабатываются локально на вашем устройстве и не загружаются на сервер.</li>
+            </ul>
+        </section>
+
+        <section style="overflow-x: auto;">
+            <h2 style="color: #1e40af; font-size: 20px; margin-top: 30px;">Возможности конвертации по форматам</h2>
+            <p>Сервис работает на компьютерах и смартфонах, обеспечивая уникальные преимущества для каждого типа файлов. Например, после обработки фото в нашем <a href="https://masterstan.ru/po-dlya-biznesa/podschet-trub-po-foto" style="color: #2563eb; text-decoration: none; border-bottom: 1px dotted;">приложении подсчёта труб по фото</a>, вы можете сразу подготовить чертеж для их торцовки:</p>
+            <table style="width: 100%; min-width: 300px; border-collapse: collapse; margin: 20px 0; border: 1px solid #e2e8f0; font-size: 15px; border-radius: 8px; overflow: hidden;">
+                <thead>
+                    <tr style="background: #f1f5f9;">
+                        <th style="border: 1px solid #e2e8f0; padding: 12px; text-align: left;">Формат</th>
+                        <th style="border: 1px solid #e2e8f0; padding: 12px; text-align: left;">Особенности и преимущества</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>PDF</strong></td><td style="border: 1px solid #e2e8f0; padding: 12px;">Инженерный стандарт. Рендеринг документов в высоком качестве для точного выделения контуров.</td></tr>
+                    <tr><td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>SVG</strong></td><td style="border: 1px solid #e2e8f0; padding: 12px;">Дизайнерский вектор. Прямая конвертация из графических редакторов в промышленный стандарт DXF без искажений.</td></tr>
+                    <tr><td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>JPG / PNG</strong></td><td style="border: 1px solid #e2e8f0; padding: 12px;">Фото и эскизы. Идеально для сфотографированных на бумаге рисунков или логотипов из интернета.</td></tr>
+                    <tr><td style="border: 1px solid #e2e8f0; padding: 12px;"><strong>BMP</strong></td><td style="border: 1px solid #e2e8f0; padding: 12px;">Чистая графика. Обработка несжатых изображений для получения максимально точной сетки линий.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2 style="color: #1e40af; font-size: 20px; margin-top: 35px;">Пошаговая инструкция</h2>
+            <div style="margin-bottom: 20px;">
+                <p><strong>1. Загрузка или съёмка изображения</strong><br>Нажмите «Открыть файл», чтобы выбрать чертеж из памяти устройства (PDF, SVG, JPG, PNG, BMP). На мобильных устройствах система также предложит использовать камеру для создания нового снимка.</p>
+                <p><strong>2. Настройка параметров</strong><br>Используйте ползунки для точной настройки векторизации:</p>
+                <ul style="font-size: 14px; color: #475569;">
+                    <li>Порог (ч/б), Инверсия и Фильтр шума: Эти параметры работают в режиме реального времени, позволяя мгновенно видеть изменения на экране.</li>
+                    <li>Заполнение разрывов и Сшивка контуров: Опции для интеллектуального объединения линий. Результат их применения отображается на чертеже только после нажатия кнопки «Найти штрихи».</li>
+                    <li>Реальная ширина (мм): Задает физический размер детали для автоматического масштабирования в CAD.</li>
+                </ul>
+                <p><strong>3. Поиск штрихов и экспорт</strong><br>Нажмите кнопку «Найти штрихи», чтобы выделить линии и оценить результат. Если контур вас устраивает, нажмите «Сохранить DXF». Сервис создаст ссылку для скачивания готового файла прямо в браузере.</p>
+            </div>
+        </section>
+
+        <section>
+            <h2 style="color: #1e40af; font-size: 20px;">Использование результата</h2>
+            <p>Полученный DXF-файл полностью готов к работе на профессиональном оборудовании:</p>
+            <ul style="list-style-type: square; padding-left: 20px;">
+                <li>Импорт: Открывайте в AutoCAD, SolidWorks, Fusion 360, CorelDraw.</li>
+                <li>Производство: Загружайте в CAM-программы для создания G-кодов.</li>
+                <li>Станки: Используйте для <a href="https://masterstan.ru/stanki/lazernye-stanki/stanki-lazernoj-rezki-s-chpu" style="color: #2563eb; text-decoration: none;">лазерной резки металла</a>, <a href="https://masterstan.ru/stanki/stanki-plazmennoj-rezki/portalnye-stanki-plazmennoj-rezki-s-chpu" style="color: #2563eb; text-decoration: none;">плазменной резки</a> (например, <a href="https://masterstan.ru/stanki/stanki-plazmennoj-rezki/stanki-plazmennoj-rezki-pr-1530" style="color: #2563eb; text-decoration: none;">станок плазменной резки металла модель &quot;ПР 1530&quot;</a>), <a href="https://masterstan.ru/stanki/stanki-plazmennoj-rezki/plazmennyj-truborez-s-chpu" style="color: #2563eb; text-decoration: none;">труборез плазменной резки металла</a>, <a href="https://masterstan.ru/stanki/lazernye-stanki/lazernyj-truborez" style="color: #2563eb; text-decoration: none;">труборез лазерной резки</a>, а также на <a href="https://masterstan.ru/stanki/drugie-stanki-s-chpu/frezernyj-stanok-s-chpu" style="color: #2563eb; text-decoration: none;">фрезерных станках с ЧПУ</a>.</li>
+            </ul>
+        </section>
+
+        <section style="margin-top: 50px; border-top: 2px solid #f1f5f9; padding-top: 30px;">
+            <h2 style="color: #0f172a; font-size: 22px; text-align: center; margin-bottom: 30px;">Часто задаваемые вопросы (FAQ)</h2>
+            <div style="display: grid; gap: 20px;">
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>1. Какие форматы файлов поддерживает конвертер?</strong><br>Наш сервис поддерживает PDF, SVG, JPG, JPEG, PNG и BMP. Вы можете загрузить файл или сделать снимок камерой.</p>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>2. Будет ли масштаб в DXF соответствовать реальному размеру?</strong><br>Да, вы можете задать реальную ширину детали в миллиметрах перед экспортом для получения масштаба 1:1.</p>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>3. Безопасно ли загружать чертежи?</strong><br>Абсолютно. Вся обработка происходит локально в вашем браузере, файлы не передаются на сервер.</p>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>4. Как подготовить фото для лучшей векторизации?</strong><br>Используйте контрастный фон (например, белый лист бумаги), избегайте теней и бликов.</p>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>5. Нужно ли устанавливать дополнительные программы?</strong><br>Нет, наш конвертер работает полностью онлайн во всех современных браузерах (Chrome, Safari, Яндекс.Браузер) как на компьютерах, так и на смартфонах.</p>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>6. Можно ли открыть полученный файл в AutoCAD или КОМПАС?</strong><br>Да, файл сохраняется в стандартном формате DXF (LWPOLYLINE), который поддерживается всеми популярными CAD-системами, включая AutoCAD, SolidWorks, КОМПАС-3D и Fusion 360.</p>
+                </div>
+                <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <p><strong>7. Подходит ли файл для лазерной или плазменной резки?</strong><br>Да, алгоритм сшивки контуров и заполнения разрывов и фильтрации шумов создает чистые замкнутые контуры, что идеально подходит для создания управляющих программ (УП) для станков с ЧПУ.</p>
+                </div>
+            </div>
+        </section>
+
+        <section style="margin-top: 40px; padding: 20px; background: #f1f5f9; border-radius: 12px; text-align: center;">
+            <p style="font-size: 15px; color: #475569;">
+                Также вам может быть полезен наш <a href="https://masterstan.ru/kalkulyator-metalla.html" style="color: #2563eb; font-weight: 600; text-decoration: none; border-bottom: 1px solid;">калькулятор металлопроката онлайн</a>.
+            </p>
+        </section>
+
+        <a href="https://masterstan.ru" style="text-decoration: none; display: block; margin-top: 40px;">
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 25px; text-align: center;">
+                <h3 style="margin: 0; color: #0f172a; font-size: 20px; font-weight: 800; text-transform: uppercase;">Завод Станкопром</h3>
+                <p style="margin-top: 10px; color: #334155; font-weight: 600;">8 (351) 729-80-19 | promstroy174@mail.ru</p>
+            </div>
+        </a>
+    </article>
+</div>
+
+<canvas id="bufferCanvas" style="display:none;"></canvas>
+<canvas id="filterCacheCanvas" style="display:none;"></canvas>
+
+<script>
+    /* БЛОК МЯГКОЙ ЗАЩИТЫ: Запрет ПКМ, F12, Ctrl+U, Ctrl+S */
+    (function() {
+        const prevent = (e) => { e.preventDefault(); return false; };
+        document.addEventListener('contextmenu', prevent, true);
+        document.addEventListener('keydown', (e) => {
+            if (
+                e.key === 'F12' || 
+                (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'U' || e.key === 'S')) ||
+                (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))
+            ) {
+                return prevent(e);
+            }
+        }, true);
+    })();
+
+    const $ = id => document.getElementById(id);
+    const pdfjsLib = window['pdfjs-dist/build/pdf'];
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+    let strokes = [];
+    let imgScale = 1; 
+    let debounceTimer = null;
+
+    let viewState = {
+        scale: 1,
+        offsetX: 0,
+        offsetY: 0,
+        isDragging: false,
+        lastMouseX: 0,
+        lastMouseY: 0,
+        pinchDist: 0
+    };
+
+    const log = m => { const l = $('log'); l.innerText += '\n> ' + m; l.scrollTop = l.scrollHeight; };
+
+    function skeletonize(bin, w, h) {
+        let changed = true;
+        let iter = 0;
+        const maxIter = 100;
+        while (changed && iter < maxIter) {
+            changed = false;
+            for (let step = 1; step <= 2; step++) {
+                let pixelsToRemove = [];
+                for (let y = 1; y < h - 1; y++) {
+                    for (let x = 1; x < w - 1; x++) {
+                        let idx = y * w + x;
+                        if (bin[idx] !== 1) continue;
+                        let p2 = bin[(y-1)*w + x], p3 = bin[(y-1)*w + x+1], p4 = bin[y*w + x+1], p5 = bin[(y+1)*w + x+1], p6 = bin[(y+1)*w + x], p7 = bin[(y+1)*w + x-1], p8 = bin[y*w + x-1], p9 = bin[(y-1)*w + x-1];
+                        let neighbors = [p2, p3, p4, p5, p6, p7, p8, p9, p2];
+                        let A = 0;
+                        for (let i = 0; i < 8; i++) if (neighbors[i] === 0 && neighbors[i+1] === 1) A++;
+                        let B = p2 + p3 + p4 + p5 + p6 + p7 + p8 + p9;
+                        if (B >= 2 && B <= 6 && A === 1) {
+                            if (step === 1) { if (p2 * p4 * p6 === 0 && p4 * p6 * p8 === 0) pixelsToRemove.push(idx); }
+                            else { if (p2 * p4 * p8 === 0 && p2 * p6 * p8 === 0) pixelsToRemove.push(idx); }
+                        }
+                    }
+                }
+                if (pixelsToRemove.length > 0) { pixelsToRemove.forEach(idx => bin[idx] = 0); changed = true; }
+            }
+            iter++;
+        }
+        return bin;
+    }
+
+    function trace(bin, w, h) {
+        const visited = new Uint8Array(w * h);
+        const paths = [];
+        for (let i = 0; i < w * h; i++) {
+            if (bin[i] && !visited[i]) {
+                let p = [];
+                let curr = i;
+                while (curr !== -1) {
+                    visited[curr] = 1;
+                    let cx = curr % w, cy = Math.floor(curr / w);
+                    p.push([cx, cy]);
+                    let next = -1;
+                    const neighbors = [[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]];
+                    for (let [dx, dy] of neighbors) {
+                        let nx = cx + dx, ny = cy + dy;
+                        if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+                            let idx = ny * w + nx;
+                            if (bin[idx] && !visited[idx]) { next = idx; break; }
+                        }
+                    }
+                    curr = next;
+                }
+                if (p.length > 3) paths.push(p);
+            }
+        }
+        return paths;
+    }
+
+    function simplifyRDP(points, epsilon) {
+        if (points.length <= 2) return points;
+        let dmax = 0, index = 0;
+        const end = points.length - 1;
+        for (let i = 1; i < end; i++) {
+            let d = distToSegment(points[i], points[0], points[end]);
+            if (d > dmax) { index = i; dmax = d; }
+        }
+        if (dmax > epsilon) {
+            let left = simplifyRDP(points.slice(0, index + 1), epsilon);
+            let right = simplifyRDP(points.slice(index), epsilon);
+            return left.slice(0, left.length - 1).concat(right);
+        } else return [points[0], points[end]];
+    }
+
+    function distToSegment(p, v, w) {
+        let l2 = Math.pow(v[0] - w[0], 2) + Math.pow(v[1] - w[1], 2);
+        if (l2 === 0) return Math.hypot(p[0] - v[0], p[1] - v[1]);
+        let t = ((p[0] - v[0]) * (w[0] - v[0]) + (p[1] - v[1]) * (w[1] - v[1])) / l2;
+        t = Math.max(0, Math.min(1, t));
+        return Math.hypot(p[0] - (v[0] + t * (w[0] - v[0])), p[1] - (v[1] + t * (w[1] - v[1])));
+    }
+
+    const handleInput = async (e) => {
+        strokes = []; 
+        const file = e.target.files[0];
+        if (!file) return;
+        $('processBtn').disabled = true; $('saveBtn').disabled = true;
+        const ext = file.name.split('.').pop().toLowerCase();
+        const allowed = ['pdf', 'jpg', 'jpeg', 'png', 'svg', 'bmp'];
+        if (!allowed.includes(ext)) { log(`Ошибка: Файл .${ext} не поддерживается.`); return; }
+        if (ext === "pdf") await loadPDF(file);
+        else if (ext === "svg") await loadSVG(file);
+        else await loadIMG(file);
+    };
+
+    async function loadPDF(file) {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 2.5 }); 
+        const bc = $('bufferCanvas');
+        bc.width = viewport.width; bc.height = viewport.height;
+        await page.render({ canvasContext: bc.getContext('2d'), viewport: viewport }).promise;
+        finishLoading(bc);
+    }
+
+    async function loadSVG(file) {
+        try {
+            log("Подготовка SVG...");
+            const text = await file.text(), blob = new Blob([text], { type: 'image/svg+xml' }), url = URL.createObjectURL(blob), img = new Image();
+            img.src = url; await img.decode();
+            const bc = $('bufferCanvas'), ctx = bc.getContext('2d'), scaleFactor = 4.0;
+            bc.width = img.width * scaleFactor; bc.height = img.height * scaleFactor;
+            ctx.fillStyle = "white"; ctx.fillRect(0, 0, bc.width, bc.height);
+            ctx.drawImage(img, 0, 0, bc.width, bc.height);
+            URL.revokeObjectURL(url);
+            finishLoading(bc);
+        } catch (e) { log("Ошибка рендеринга SVG: " + e.message); }
+    }
+
+    async function loadIMG(file) {
+        const img = new Image();
+        img.src = URL.createObjectURL(file); await img.decode();
+        const bc = $('bufferCanvas'), s = Math.min(1, 1600 / Math.max(img.width, img.height)); 
+        bc.width = img.width * s; bc.height = img.height * s;
+        bc.getContext('2d').drawImage(img, 0, 0, bc.width, bc.height);
+        finishLoading(bc);
+    }
+
+    function finishLoading(canvas) {
+        const mc = $('mainCanvas');
+        $('showOnlyVector').checked = false; 
+        resetZoom(); 
+        strokes = []; 
+        mc.width = canvas.width; mc.height = canvas.height;
+        imgScale = canvas.width;
+        updateFilterCache(); 
+        drawPreview();
+        $('processBtn').disabled = false;
+        log(`Готово. Разрешение: ${mc.width}x${mc.height}px`);
+    }
+
+    function updateFilterCache() {
+        if(!$('bufferCanvas').width) return;
+        const bc = $('bufferCanvas'), fc = $('filterCacheCanvas');
+        fc.width = bc.width; fc.height = bc.height;
+        const ctx = fc.getContext('2d');
+        const thr = parseInt($('threshold').value), inv = $('invert').checked;
+        const data = bc.getContext('2d').getImageData(0,0,bc.width,bc.height);
+        const d = data.data;
+        for(let i=0; i<d.length; i+=4) {
+            let v = (0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2]) < thr ? 0 : 255;
+            if(inv) v = 255 - v;
+            d[i]=d[i+1]=d[i+2]=v; d[i+3]=255;
+        }
+        ctx.putImageData(data, 0, 0);
+    }
+
+    function resetZoom() {
+        const mc = $('mainCanvas'), ctx = mc.getContext('2d');
+        viewState.scale = 1; 
+        viewState.offsetX = 0; 
+        viewState.offsetY = 0;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, mc.width, mc.height);
+        requestAnimationFrame(drawPreview);
+    }
+
+    function drawPreview() {
+        if(!$('bufferCanvas').width) return;
+        const mc = $('mainCanvas'), ctx = mc.getContext('2d');
+        const showOnlyVector = $('showOnlyVector').checked && strokes.length > 0;
+        const inv = $('invert').checked;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, mc.width, mc.height);
+        ctx.translate(viewState.offsetX, viewState.offsetY);
+        ctx.scale(viewState.scale, viewState.scale);
+        if (showOnlyVector) {
+            ctx.fillStyle = inv ? "#ffffff" : "#000000";
+            ctx.fillRect(0, 0, mc.width, mc.height);
+        } else {
+            ctx.drawImage($('filterCacheCanvas'), 0, 0);
+        }
+        renderVectorLayer(); 
+    }
+
+    function renderVectorLayer() {
+        if (!strokes || strokes.length === 0) return;
+        const mc = $('mainCanvas'), ctx = mc.getContext('2d');
+        const rdpEpsilon = parseFloat($('noise').value) || 1.0;
+        const mmWidth = parseFloat($('realWidth').value) || 100;
+        const scale = mmWidth / imgScale;
+        ctx.strokeStyle = '#4ade80';
+        ctx.lineWidth = 2 / viewState.scale; 
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        strokes.forEach(rawPath => {
+            const path = simplifyRDP(rawPath, rdpEpsilon);
+            if (path.length < 2) return;
+            ctx.beginPath();
+            ctx.moveTo(path[0][0], path[0][1]);
+            for (let i = 1; i < path.length; i++) ctx.lineTo(path[i][0], path[i][1]);
+            const distBetweenEnds = Math.hypot(path[0][0] - path[path.length - 1][0], path[0][1] - path[path.length - 1][1]);
+            if (distBetweenEnds < (0.05 / scale) * 2 || distBetweenEnds < 5) ctx.closePath();
+            ctx.stroke();
+            ctx.fillStyle = '#ff3b30';
+            path.forEach(pt => {
+                ctx.beginPath();
+                ctx.arc(pt[0], pt[1], 1.5 / viewState.scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        });
+    }
+
+    const mc_el = $('mainCanvas');
+    mc_el.addEventListener('mousedown', e => {
+        viewState.isDragging = true;
+        viewState.lastMouseX = e.clientX; viewState.lastMouseY = e.clientY;
+    });
+    window.addEventListener('mouseup', () => viewState.isDragging = false);
+    window.addEventListener('mousemove', e => {
+        if (!viewState.isDragging) return;
+        viewState.offsetX += e.clientX - viewState.lastMouseX;
+        viewState.offsetY += e.clientY - viewState.lastMouseY;
+        viewState.lastMouseX = e.clientX; viewState.lastMouseY = e.clientY;
+        requestAnimationFrame(drawPreview);
+    });
+    mc_el.addEventListener('wheel', e => {
+        e.preventDefault();
+        const rect = mc_el.getBoundingClientRect();
+        const mouseX = (e.clientX - rect.left) * (mc_el.width / rect.width);
+        const mouseY = (e.clientY - rect.top) * (mc_el.height / rect.height);
+        const worldX = (mouseX - viewState.offsetX) / viewState.scale;
+        const worldY = (mouseY - viewState.offsetY) / viewState.scale;
+        viewState.scale *= Math.pow(1.1, -e.deltaY / 100);
+        viewState.scale = Math.max(0.1, Math.min(20, viewState.scale));
+        viewState.offsetX = mouseX - worldX * viewState.scale;
+        viewState.offsetY = mouseY - worldY * viewState.scale;
+        requestAnimationFrame(drawPreview);
+    }, { passive: false });
+
+    mc_el.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) {
+            viewState.isDragging = true;
+            viewState.lastMouseX = e.touches[0].clientX;
+            viewState.lastMouseY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            viewState.isDragging = false;
+            viewState.pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        }
+    });
+    mc_el.addEventListener('touchmove', e => {
+        e.preventDefault();
+        if (e.touches.length === 1 && viewState.isDragging) {
+            viewState.offsetX += e.touches[0].clientX - viewState.lastMouseX;
+            viewState.offsetY += e.touches[0].clientY - viewState.lastMouseY;
+            viewState.lastMouseX = e.touches[0].clientX; viewState.lastMouseY = e.touches[0].clientY;
+        } else if (e.touches.length === 2) {
+            const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+            const factor = d / viewState.pinchDist; viewState.pinchDist = d;
+            const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2, midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+            const rect = mc_el.getBoundingClientRect();
+            const canvasMidX = (midX - rect.left) * (mc_el.width / rect.width), canvasMidY = (midY - rect.top) * (mc_el.height / rect.height);
+            const worldX = (canvasMidX - viewState.offsetX) / viewState.scale, worldY = (canvasMidY - viewState.offsetY) / viewState.scale;
+            viewState.scale = Math.max(0.1, Math.min(20, viewState.scale * factor));
+            viewState.offsetX = canvasMidX - worldX * viewState.scale; viewState.offsetY = canvasMidY - worldY * viewState.scale;
+        }
+        requestAnimationFrame(drawPreview);
+    }, { passive: false });
+    mc_el.addEventListener('touchend', () => { viewState.isDragging = false; viewState.pinchDist = 0; });
+
+    function mergeStrokes(inputStrokes, tolerance) {
+        if (!inputStrokes.length) return [];
+        let pool = inputStrokes.map(p => [...p]), merged = [];
+        while (pool.length > 0) {
+            let current = pool.shift(), found = true;
+            while (found) {
+                found = false;
+                let head = current[0], head_end = current[current.length - 1];
+                for (let i = 0; i < pool.length; i++) {
+                    let next = pool[i], nHead = next[0], nTail = next[next.length - 1];
+                    if (Math.hypot(head_end[0] - nHead[0], head_end[1] - nHead[1]) < tolerance) { current.push(...pool.splice(i, 1)[0].slice(1)); found = true; break; } 
+                    else if (Math.hypot(head_end[0] - nTail[0], head_end[1] - nTail[1]) < tolerance) { current.push(...pool.splice(i, 1)[0].reverse().slice(1)); found = true; break; }
+                    else if (Math.hypot(head[0] - nTail[0], head[1] - nTail[1]) < tolerance) { current.unshift(...pool.splice(i, 1)[0].slice(0, -1)); found = true; break; }
+                    else if (Math.hypot(head[0] - nHead[0], head[1] - nHead[1]) < tolerance) { current.unshift(...pool.splice(i, 1)[0].reverse().slice(0, -1)); found = true; break; }
+                }
+            }
+            merged.push(current);
+        }
+        return merged;
+    }
+
+    const analyzeGeom = () => {
+        if (!$('bufferCanvas').width) return;
+        log("Запуск глубокого анализа...");
+        const bc = $('bufferCanvas'), w = bc.width, h = bc.height;
+        const data = bc.getContext('2d').getImageData(0,0,w,h).data;
+        const thr = parseInt($('threshold').value), inv = $('invert').checked;
+        const dilateIter = parseInt($('dilation').value);
+        let bin = new Uint8Array(w*h);
+        for(let i=0; i<data.length; i+=4) {
+            let v = (0.299*data[i] + 0.587*data[i+1] + 0.114*data[i+2]) < thr ? 1 : 0;
+            if(inv) v = 1 - v; bin[i/4] = v;
+        }
+        if (dilateIter > 0) {
+            for (let it = 0; it < dilateIter; it++) {
+                let tempBin = new Uint8Array(bin);
+                for (let y = 1; y < h - 1; y++) {
+                    for (let x = 1; x < w - 1; x++) {
+                        let idx = y * w + x;
+                        if (bin[idx] === 1) continue;
+                        if (bin[idx-1] || bin[idx+1] || bin[idx-w] || bin[idx+w]) tempBin[idx] = 1;
+                    }
+                }
+                bin = tempBin;
+            }
+        }
+        let thinned = skeletonize(bin, w, h);
+        let paths = trace(thinned, w, h);
+        strokes = mergeStrokes(paths, parseFloat($('joinTolerance').value));
+        requestAnimationFrame(drawPreview);
+        $('saveBtn').disabled = false;
+        log("Анализ завершен. Векторный слой активен.");
+    };
+
+    $('processBtn').onclick = analyzeGeom;
+
+    $('saveBtn').onclick = () => {
+        const mmWidth = parseFloat($('realWidth').value) || 100, scale = mmWidth / imgScale;
+        const canvasWidth = $('mainCanvas').width, canvasHeight = $('mainCanvas').height;
+        const rdpEpsilon = parseFloat($('noise').value) || 1.0;
+        const joinTolerance = parseFloat($('joinTolerance').value) || 4; 
+        
+        let pool = strokes.map(p => simplifyRDP(p, rdpEpsilon)), joinedStrokes = [];
+        while (pool.length > 0) {
+            let current = pool.shift(), found = true;
+            while (found) {
+                found = false;
+                let tail = current[current.length - 1];
+                for (let i = 0; i < pool.length; i++) {
+                    let nHead = pool[i][0], nTail = pool[i][pool[i].length - 1];
+                    if (Math.hypot(tail[0] - nHead[0], tail[1] - nHead[1]) <= joinTolerance) { current.push(...pool.splice(i, 1)[0].slice(1)); found = true; break; } 
+                    else if (Math.hypot(tail[0] - nTail[0], tail[1] - nTail[1]) <= joinTolerance) { current.push(...pool.splice(i, 1)[0].reverse().slice(1)); found = true; break; }
+                }
+            }
+            joinedStrokes.push(current);
+        }
+
+        let dxf = ["0", "SECTION", "2", "HEADER", "9", "$ACADVER", "1", "AC1015", "0", "ENDSEC", "0", "SECTION", "2", "ENTITIES"];
+        joinedStrokes.forEach(path => {
+            if (path.length < 2) return;
+            const p1 = path[0], p2 = path[path.length - 1];
+            if ((Math.abs(p1[0] - p2[0]) < 1) && (p1[0] > canvasWidth * 0.98 || p1[0] < canvasWidth * 0.02)) return;
+            if ((Math.abs(p1[1] - p2[1]) < 1) && (p1[1] > canvasHeight * 0.98 || p1[1] < canvasHeight * 0.02)) return;
+            let flag70 = 0;
+            if (Math.hypot(p1[0] - p2[0], p1[1] - p2[1]) <= joinTolerance * 1.5) { flag70 = 1; path.pop(); }
+            dxf.push("0", "LWPOLYLINE", "8", "0", "90", path.length, "70", flag70);
+            for (let i = 0; i < path.length; i++) {
+                dxf.push("10", (path[i][0] * scale).toFixed(4));
+                dxf.push("20", ((canvasHeight - path[i][1]) * scale).toFixed(4));
+            }
+        });
+        dxf.push("0", "ENDSEC", "0", "EOF");
+        
+        const blob = new Blob([dxf.join("\n")], {type: 'application/dxf'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        a.style.display = 'none';
+        a.href = url;
+        a.download = `CNC_READY_${mmWidth}mm.dxf`;
+        a.target = '_blank';
+        
+        document.body.appendChild(a);
+        
+        setTimeout(() => {
+            a.click();
+            log("Файл отправлен на скачивание.");
+            setTimeout(() => {
+                if (document.body.contains(a)) document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            }, 30000); 
+        }, 50);
+    };
+
+    const liveUpdate = () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => { updateFilterCache(); requestAnimationFrame(drawPreview); }, 50);
+    };
+    $('threshold').oninput = () => { $('vTh').innerText = $('threshold').value; liveUpdate(); };
+    $('dilation').oninput = () => { $('vDilation').innerText = $('dilation').value; liveUpdate(); };
+    $('noise').oninput = () => { $('vNoise').innerText = $('noise').value; liveUpdate(); };
+    $('joinTolerance').oninput = () => { $('vJoin').innerText = $('joinTolerance').value; liveUpdate(); };
+    $('invert').onchange = liveUpdate;
+    $('showOnlyVector').onchange = () => requestAnimationFrame(drawPreview);
+    $('realWidth').oninput = () => requestAnimationFrame(drawPreview);
+    $('fileIn').onchange = handleInput;
+</script>
+</body>
+</html>
